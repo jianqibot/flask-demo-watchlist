@@ -66,11 +66,24 @@ def forge():
     click.echo('Done.')
 
 
+@app.context_processor
+def inject_user():
+    user = User.query.first()
+    return dict(user=user)
+
+
+@app.errorhandler(404)  # 传入要处理的错误代码
+def page_not_found(e):  # 接受异常对象作为参数
+    user = User.query.first()
+    return render_template('not_found.html'), 404  # 返回模板和状态码
+
+
 @app.route('/')
 def index():
     user = User.query.first()
     movies = Movie.query.all()
-    return render_template('index.html', user=user, movies=movies)
+    # 普通的视图函数之所以不用写出状态码，是因为默认会使用 200 状态码
+    return render_template('index.html', movies=movies)
 
 
 class User(db.Model):  # 表名将会是 user（自动生成，小写处理）
